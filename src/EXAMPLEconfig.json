@@ -1,0 +1,14 @@
+{
+	"discordToken": "Discord bot token here",
+	"librusLogin": "Your email here",
+	"librusPass": "Your password here",
+	"pushDevice": 0,
+	"librusChannels": [
+		{
+			"guildId": "Guild ID",
+			"channelId": "Channel ID",
+			"tagRoles": true
+		}
+	],
+	"debugMessagesChannel": "Channel ID"
+}
