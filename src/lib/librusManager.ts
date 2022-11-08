@@ -4,7 +4,6 @@ import { client as discordClient, debugChannel } from "../index";
 import LibrusClient from "./librus-api";
 import * as LibrusApiTypes from "./librus-api/types/api-types";
 import crypto from "node:crypto";
-import repl from "node:repl";
 
 interface IRoleRegex {
 	roleId: Snowflake;
@@ -297,5 +296,4 @@ export default async function initLibrusManager() {
 	await registerTrackedChannels();
 	// Short timeout before we start the loop
 	setTimeout(fetchNewSchoolNotices, 2000);
-	repl.start("> ");
 }
