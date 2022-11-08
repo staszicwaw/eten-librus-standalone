@@ -180,7 +180,7 @@ async function handleTeacherFreeDay(update: LibrusApiTypes.IChange) {
 	const embed = new EmbedBuilder()
 		.setColor("#E56390")
 		.setTitle(embedTitle)
-		.setDescription(embedDesc)
+		.setDescription(embedDesc.length > 0 ? embedDesc : null) // Is this really necessary?
 		.setFields([
 			{ name: "Od:", value: timestampFrom },
 			{ name: "Do:", value: timestampTo }
@@ -237,8 +237,8 @@ async function fetchNewSchoolNotices(): Promise<void> {
 		setTimeout(fetchNewSchoolNotices, failDelayTimeMs);
 		return;
 	}
-	setTimeout(fetchNewSchoolNotices, 7 * 60 * 1000);
 	console.log("DONE".gray);
+	setTimeout(fetchNewSchoolNotices, 7 * 60 * 1000);
 }
 
 async function registerTrackedChannels(): Promise<void> {
@@ -292,8 +292,8 @@ async function registerTrackedChannels(): Promise<void> {
 export default async function initLibrusManager() {
 	librusClient = new LibrusClient({ debug: true });
 	await librusClient.login(config.librusLogin, config.librusPass);
-	librusClient.pushDevice = await librusClient.newPushDevice();
-	// console.log(await librusClient.newPushDevice());
+	// librusClient.pushDevice = await librusClient.newPushDevice();
+	librusClient.pushDevice = config.pushDevice;
 	await registerTrackedChannels();
 	// Short timeout before we start the loop
 	setTimeout(fetchNewSchoolNotices, 2000);
