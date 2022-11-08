@@ -112,12 +112,12 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 			});
 		}
 		else {
-			listener.knownNoticesMap.set(schoolNotice.Id, message.id);
 			// Simply send otherwise
 			const message = await listener.channel.send({
 				content: contentText,
 				embeds: [embed]
 			});
+			listener.knownNoticesMap.set(schoolNotice.Id, message.id);
 			// Crosspost if in News c`hannel
 			if (listener.channel.type == ChannelType.GuildAnnouncement) {
 				message.crosspost()
