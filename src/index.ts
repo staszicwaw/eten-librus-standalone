@@ -12,7 +12,7 @@ client.once("ready", async () => {
 	client.user.setStatus("online");
 	client.user.setActivity("Librus news", { type: ActivityType.Watching });
 	// Store debug channel for future use
-	const channel = await client.channels.fetch("1029378257197477939");
+	const channel = await client.channels.fetch(config.debugMessagesChannel);
 	if (channel != null && channel.type === Discord.ChannelType.GuildText) {
 		debugChannel = channel;
 	}

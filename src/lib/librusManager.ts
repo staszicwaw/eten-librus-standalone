@@ -4,6 +4,7 @@ import { client as discordClient, debugChannel } from "../index";
 import LibrusClient from "./librus-api";
 import * as LibrusApiTypes from "./librus-api/types/api-types";
 import crypto from "node:crypto";
+import repl from "node:repl";
 
 interface IRoleRegex {
 	roleId: Snowflake;
@@ -39,11 +40,11 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 	let changeType: string;
 	switch (update.Type) {
 		case "Add": {
-			changeType = "Nowe ogłoszenie w Librusie";
+			changeType = "Nowe Ogłoszenie";
 			break;
 		}
 		case "Edit": {
-			changeType = "Ogłoszenie w Librusie (Zmienione)";
+			changeType = "Ogłoszenie (Zmienione)";
 			break;
 		}
 		case "Delete": {
@@ -111,12 +112,12 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 			});
 		}
 		else {
+			listener.knownNoticesMap.set(schoolNotice.Id, message.id);
 			// Simply send otherwise
 			const message = await listener.channel.send({
 				content: contentText,
 				embeds: [embed]
 			});
-			listener.knownNoticesMap.set(schoolNotice.Id, message.id);
 			// Crosspost if in News c`hannel
 			if (listener.channel.type == ChannelType.GuildAnnouncement) {
 				message.crosspost()
@@ -213,11 +214,11 @@ async function fetchNewSchoolNotices(): Promise<void> {
 			// Get the notice if the element is of type 'SchoolNotices'
 			switch (update.Resource.Type) {
 				case "SchoolNotices": {
-					handleSchoolNotice(update);
+					await handleSchoolNotice(update);
 					break;
 				}
 				case "Calendars/TeacherFreeDays": {
-					handleTeacherFreeDay(update);
+					await handleTeacherFreeDay(update);
 					break;
 				}
 				default: {
@@ -274,6 +275,7 @@ async function registerTrackedChannels(): Promise<void> {
 							`${classYear}[A-Ia-i]*[${classLetters}][A-Ia-i]*`, "gm"
 						)
 					});
+					//console.debug(rolesRegexArr);
 				}
 			}
 		}
@@ -295,4 +297,5 @@ export default async function initLibrusManager() {
 	await registerTrackedChannels();
 	// Short timeout before we start the loop
 	setTimeout(fetchNewSchoolNotices, 2000);
+	repl.start("> ");
 }
