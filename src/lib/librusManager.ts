@@ -8,6 +8,7 @@ import crypto from "node:crypto";
 interface IRoleRegex {
 	roleId: Snowflake;
 	roleRegex: RegExp;
+	boldRegex: RegExp;
 }
 
 interface IChannels {
@@ -83,7 +84,7 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 			}
 			// Bold the text
 			for (const role of listener.rolesRegexArr) {
-				embedDesc = embedDesc.replaceAll(role.roleRegex, "**$&**");
+				embedDesc = embedDesc.replaceAll(role.boldRegex, "**$&**");
 			}
 		}
 		// Build message embed
@@ -241,7 +242,7 @@ async function fetchNewSchoolNotices(): Promise<void> {
 }
 
 async function registerTrackedChannels(): Promise<void> {
-	const classRoleRegex = /^([1-4])([A-Ia-i])(?:3|4)?$/;
+	const classRoleRegex = /^([1-4])([A-Ia-i])(?:3|4)?$/; // regex for class roles
 	for (const channelConfig of config.librusChannels) {
 		// Get channel by ID, handle potential errors
 		const channel = await discordClient.channels.fetch(channelConfig.channelId);
@@ -270,11 +271,10 @@ async function registerTrackedChannels(): Promise<void> {
 					const classLetters = regexResult[2].toUpperCase() + regexResult[2].toLowerCase();
 					rolesRegexArr.push({
 						roleId: roleId,
-						roleRegex: new RegExp(
-							`${classYear}[A-Ia-i]*[${classLetters}][A-Ia-i]*`, "gm"
-						)
+						roleRegex: new RegExp(`${classYear}[A-Ia-i]*[${classLetters}][A-Ia-i]*`, "g"), // class regex for notices
+						boldRegex: new RegExp(`(?<!\\*\\*)(?!${classYear}[A-Ia-i]*[${classLetters}][A-Ia-i]*\\*\\*)${classYear}[A-Ia-i]*[${classLetters}][A-Ia-i]*`, "g") // won't match if preceded or appended with **
 					});
-					//console.debug(rolesRegexArr);
+					// console.debug(rolesRegexArr);
 				}
 			}
 		}
