@@ -342,3 +342,13 @@ export interface APIParentTeacherConference extends APIv3BaseResponse {
 export interface APIParentTeacherConferences extends APIv3BaseResponse {
 	ParentTeacherConferences: IParentTeacherConference[];
 }
+
+// TODO: Implement once endpoint becomes available
+interface ILuckyNumbers {
+
+}
+
+// https://api.librus.pl/3.0/LuckyNumbers/
+export interface APILuckyNumbers extends APIv3BaseResponse {
+	LuckyNumbers: ILuckyNumbers;
+}

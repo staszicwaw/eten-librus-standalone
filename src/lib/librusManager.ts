@@ -3,7 +3,7 @@ import config from "../config.json";
 import { client as discordClient, debugChannel } from "../index";
 import LibrusClient from "./librus-api";
 import * as LibrusApiTypes from "./librus-api/types/api-types";
-import crypto from "node:crypto";
+import cron from "node-cron";
 
 interface IRoleRegex {
 	roleId: Snowflake;
@@ -31,9 +31,6 @@ function isPlanChangeNotice(title: string): boolean {
 	return false;
 }
 
-function sha256(message: string) {
-	return crypto.createHash("SHA256").update(message).digest("hex");
-}
 
 async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 	// Handle blocked SchoolNotices
@@ -49,7 +46,7 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 		}
 		case "Delete": {
 			console.error(`${update.Resource.Id} - Is deleted. Skipping.`.yellow);
-			await debugChannel.send(`${update.Resource.Id} - Is deleted. Skipping.`);
+			// await debugChannel.send(`${update.Resource.Id} - Is deleted. Skipping.`);
 			return;
 		}
 		default: {
@@ -296,4 +293,22 @@ export default async function initLibrusManager() {
 	await registerTrackedChannels();
 	// Short timeout before we start the loop
 	setTimeout(fetchNewSchoolNotices, 2000);
+	// cron.schedule("30 6 * * *", async () => {
+	// 	try {
+	// 		const luckyNumbersResponse = await librusClient.luckyNumbers.fetch();
+	// 		const embed = new EmbedBuilder()
+	// 			.setColor("#36DDE3")
+	// 			.setTitle(`**__Dzisiejszy szczęśliwy numerek to ${luckyNumbersResponse}!__**`);
+	// 		for (const listener of noticeListenerChannels) {
+	// 			await listener.channel.send({
+	// 				content: "",
+	// 				embeds: [embed]
+	// 			});
+	// 		}
+	// 	}
+	// 	catch (error) {
+	// 		console.error("Something in checking lucky numbers failed:".bgRed.white, error);
+	// 		await debugChannel.send(`Something in checking lucky numbers failed: ${error}`);
+	// 	}
+	// });
 }

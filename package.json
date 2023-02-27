@@ -4,11 +4,13 @@
   "dependencies": {
     "colors": "^1.4.0",
     "discord.js": "^14.6.0",
-    "fetch-cookie": "^2.1.0"
+    "fetch-cookie": "^2.1.0",
+    "node-cron": "^3.0.2"
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.1",
     "@types/node": "^18.11.0",
+    "@types/node-cron": "^3.0.7",
     "@typescript-eslint/eslint-plugin": "^5.40.1",
     "@typescript-eslint/parser": "^5.40.1",
     "eslint": "^8.25.0",

@@ -2,7 +2,8 @@ import "colors";
 import { LibrusError } from "./errors/libruserror";
 import makeFetchCookie from "fetch-cookie";
 import * as librusApiTypes from "./types/api-types";
-import { UsersManager, SchoolNoticesManager, CalendarsManager } from "./managers";
+import { UsersManager, SchoolNoticesManager, CalendarsManager } from "./endpoints";
+import { LuckyNumbersManager } from "./endpoints/luckyNumbers";
 
 interface ILibrusRequestOptions {
 	fetchOptions?: RequestInit
@@ -27,6 +28,7 @@ export default class LibrusClient {
 	users: UsersManager;
 	schoolNotices: SchoolNoticesManager;
 	calendars: CalendarsManager;
+	luckyNumbers: LuckyNumbersManager;
 	debug: boolean;
 	log: (message: unknown) => void;
 	/**
@@ -43,6 +45,7 @@ export default class LibrusClient {
 		this.users = new UsersManager(this);
 		this.schoolNotices = new SchoolNoticesManager(this);
 		this.calendars = new CalendarsManager(this);
+		this.luckyNumbers = new LuckyNumbersManager(this);
 		if (options?.debug)
 			this.debug = true;
 		else
@@ -157,7 +160,7 @@ export default class LibrusClient {
 	 * @param url API endpoit URL
 	 * @param options Additional request options
 	 */
-	async customLibrusRequest(url: string, options?: ILibrusRequestOptions): Promise<Response> {
+	async customLibrusRequest(url: string, options?: ILibrusRequestOptions) {
 		// Merge default request options with user request options
 		let requestOptions: RequestInit = {
 			method: "GET",
@@ -178,6 +181,7 @@ export default class LibrusClient {
 		this.log(`${requestOptions.method} ${url}`.bgMagenta.white);
 		let result = await this.cookieFetch(url, requestOptions);
 
+		// FIXME: This whole if statement sucks and still produces "The body has already been consumed" errors.
 		if (!result.ok) {
 			this.log("Result not OK".bgYellow.white);
 			this.log(`${result.status} ${result.statusText}`.bgYellow.white);
@@ -225,7 +229,7 @@ export default class LibrusClient {
 				method: "POST",
 				body: JSON.stringify({
 					sendPush: 0,
-					appVersion: "6.0.0"
+					appVersion: "6.1.5"
 				})
 			}
 		}) as Response;
