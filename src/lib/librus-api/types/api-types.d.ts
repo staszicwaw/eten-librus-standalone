@@ -345,10 +345,11 @@ export interface APIParentTeacherConferences extends APIv3BaseResponse {
 
 // TODO: Implement once endpoint becomes available
 interface ILuckyNumbers {
-
+	LuckyNumber: number;
+	LuckyNumberDay: string; // Date, YYYY-MM-DD
 }
 
 // https://api.librus.pl/3.0/LuckyNumbers/
 export interface APILuckyNumbers extends APIv3BaseResponse {
-	LuckyNumbers: ILuckyNumbers;
+	LuckyNumber: ILuckyNumbers;
 }

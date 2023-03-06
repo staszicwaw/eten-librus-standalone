@@ -24,7 +24,7 @@ export class LuckyNumbersManager extends BaseManager {
 				throw new LibrusError("Unhandled error - Could not fetch LuckyNumbers endpoint", noticeResponse.status, errorResponseData);
 			}
 		}
-		const noticeJson: ILuckyNumbers = (await noticeResponse.json() as APILuckyNumbers).LuckyNumbers;
+		const noticeJson: ILuckyNumbers = (await noticeResponse.json() as APILuckyNumbers).LuckyNumber;
 		return noticeJson;
 	}
 }

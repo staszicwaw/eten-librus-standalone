@@ -15,6 +15,7 @@ interface IChannels {
 	channel: TextBasedChannel;
 	knownNoticesMap: Map<string, Snowflake>;
 	rolesRegexArr: IRoleRegex[];
+	numberRolesMap: Map<number, Snowflake>;
 }
 
 const noticeListenerChannels: IChannels[] = [];
@@ -254,9 +255,9 @@ async function registerTrackedChannels(): Promise<void> {
 			continue;
 		}
 		const rolesRegexArr: IRoleRegex[] = [];
+		const guildRoles = await (await discordClient.guilds.fetch(channelConfig.guildId)).roles.fetch();
 		// Fill roleRegexArr with appropriate role IDs and their respective regexes
 		if (channelConfig.tagRoles) {
-			const guildRoles = await (await discordClient.guilds.fetch(channelConfig.guildId)).roles.fetch();
 			for (const [roleId, role] of guildRoles) {
 				// Check if a role is a class role (judged from name)
 				if (classRoleRegex.test(role.name)) {
@@ -275,14 +276,61 @@ async function registerTrackedChannels(): Promise<void> {
 				}
 			}
 		}
+		// LuckyNumbers roles
+		const luckyNumbersMap = new Map<number, Snowflake>();
+		const numberRoleRegex = /^Numerek ([0-4]?[0-9])$/;
+		for (const [roleId, role] of guildRoles) {
+			if (numberRoleRegex.test(role.name)) {
+				const regexResult = numberRoleRegex.exec(role.name);
+				if (regexResult == null)
+					throw new Error("RegExp result is null");
+				const number = parseInt(regexResult[1]);
+				if (isNaN(number)) {
+					console.trace(roleId);
+					throw new Error("Role number is NaN??");
+				}
+				luckyNumbersMap.set(number, roleId);
+			}
+		}
 		// Push complete channel data to global array
 		noticeListenerChannels.push({
 			channel: channel,
 			rolesRegexArr: rolesRegexArr,
-			knownNoticesMap: new Map<string, Snowflake>()
+			knownNoticesMap: new Map<string, Snowflake>(),
+			numberRolesMap: luckyNumbersMap
 		});
 	}
 	// console.debug(util.inspect(noticeListenerChannels, false, null, true));
+}
+
+async function luckyNumbersCron() {
+	try {
+		const luckyNumbersResponse = await librusClient.luckyNumbers.fetch();
+		const embed = new EmbedBuilder()
+			.setColor("#36DDE3")
+			.setTitle(`**__Dzisiejszy szczęśliwy numerek to ${luckyNumbersResponse.LuckyNumber}!__**`)
+			.setFooter({
+				text: `Dnia: ${luckyNumbersResponse.LuckyNumberDay}`
+			});
+		for (const listener of noticeListenerChannels) {
+			const roleId = listener.numberRolesMap.get(luckyNumbersResponse.LuckyNumber);
+			let tagText = "";
+			if (roleId != null) {
+				tagText = `<@&${roleId}>`;
+			}
+			else {
+				tagText = `@Numerek ${luckyNumbersResponse.LuckyNumber} (brak roli)`;
+			}
+			await listener.channel.send({
+				content: tagText,
+				embeds: [embed]
+			});
+		}
+	}
+	catch (error) {
+		console.error("Something in checking lucky numbers failed:".bgRed.white, error);
+		await debugChannel.send(`Something in checking lucky numbers failed: ${error}`);
+	}
 }
 
 export default async function initLibrusManager() {
@@ -291,24 +339,6 @@ export default async function initLibrusManager() {
 	// librusClient.pushDevice = await librusClient.newPushDevice();
 	librusClient.pushDevice = config.pushDevice;
 	await registerTrackedChannels();
-	// Short timeout before we start the loop
 	setTimeout(fetchNewSchoolNotices, 2000);
-	// cron.schedule("30 6 * * *", async () => {
-	// 	try {
-	// 		const luckyNumbersResponse = await librusClient.luckyNumbers.fetch();
-	// 		const embed = new EmbedBuilder()
-	// 			.setColor("#36DDE3")
-	// 			.setTitle(`**__Dzisiejszy szczęśliwy numerek to ${luckyNumbersResponse}!__**`);
-	// 		for (const listener of noticeListenerChannels) {
-	// 			await listener.channel.send({
-	// 				content: "",
-	// 				embeds: [embed]
-	// 			});
-	// 		}
-	// 	}
-	// 	catch (error) {
-	// 		console.error("Something in checking lucky numbers failed:".bgRed.white, error);
-	// 		await debugChannel.send(`Something in checking lucky numbers failed: ${error}`);
-	// 	}
-	// });
+	cron.schedule("30 6 * * 1-5", luckyNumbersCron);
 }
