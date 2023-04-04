@@ -1,7 +1,7 @@
-import LibrusClient from "..";
-import { LibrusError } from "../errors/libruserror";
-import { APIUser, APIUsers, IUser } from "../types/api-types";
-import BaseManager from "./baseManager";
+import LibrusClient from "../index.js";
+import { LibrusError } from "../errors/libruserror.js";
+import { APIUser, APIUsers, IUser } from "../types/api-types.js";
+import BaseManager from "./baseManager.js";
 
 export class UsersManager extends BaseManager {
 	cache: Map<number, IUser>;

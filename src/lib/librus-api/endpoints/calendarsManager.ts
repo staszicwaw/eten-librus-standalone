@@ -1,7 +1,7 @@
-import LibrusClient from "..";
-import { LibrusError } from "../errors/libruserror";
-import { APICalendarsTeacherFreeDay, ITeacherFreeDay } from "../types/api-types";
-import BaseManager from "./baseManager";
+import LibrusClient from "../index.js";
+import { LibrusError } from "../errors/libruserror.js";
+import { APICalendarsTeacherFreeDay, ITeacherFreeDay } from "../types/api-types.js";
+import BaseManager from "./baseManager.js";
 
 export class CalendarsManager extends BaseManager {
 	teacherFreeDays: TeacherFreeDaysManager;

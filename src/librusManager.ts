@@ -1,8 +1,8 @@
 import { ChannelType, EmbedBuilder, Snowflake, TextBasedChannel } from "discord.js";
-import config from "../config.json";
-import { client as discordClient, debugChannel } from "../index";
-import LibrusClient from "./librus-api";
-import * as LibrusApiTypes from "./librus-api/types/api-types";
+import config from "./config.json" assert { type: "json" };
+import { client as discordClient, debugChannel } from "./index.js";
+import LibrusClient from "./lib/librus-api/index.js";
+import * as LibrusApiTypes from "./lib/librus-api/types/api-types.js";
 import cron from "node-cron";
 
 interface IRoleRegex {

@@ -1,7 +1,7 @@
-import LibrusClient from "..";
-import { LibrusError } from "../errors/libruserror";
-import { APISchoolNotice, APISchoolNotices, ISchoolNotice } from "../types/api-types";
-import BaseManager from "./baseManager";
+import LibrusClient from "../index.js";
+import { LibrusError } from "../errors/libruserror.js";
+import { APISchoolNotice, APISchoolNotices, ISchoolNotice } from "../types/api-types.js";
+import BaseManager from "./baseManager.js";
 
 export class SchoolNoticesManager extends BaseManager {
 	constructor(client: LibrusClient) {

@@ -1,7 +1,7 @@
-import LibrusClient from "..";
-import { LibrusError } from "../errors/libruserror";
-import { APILuckyNumbers, ILuckyNumbers } from "../types/api-types";
-import BaseManager from "./baseManager";
+import LibrusClient from "../index.js";
+import { LibrusError } from "../errors/libruserror.js";
+import { APILuckyNumbers, ILuckyNumbers } from "../types/api-types.js";
+import BaseManager from "./baseManager.js";
 
 export class LuckyNumbersManager extends BaseManager {
 	constructor(client: LibrusClient) {

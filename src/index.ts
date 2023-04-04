@@ -1,9 +1,11 @@
 import Discord, { ActivityType, GatewayIntentBits } from "discord.js";
-import config from "./config.json";
-import initLibrusManager from "./lib/librusManager";
+import initLibrusManager from "./librusManager.js";
+import config from "./config.json" assert { type: "json" };
 
 export const client = new Discord.Client({ intents: GatewayIntentBits.GuildMessages });
 export let debugChannel: Discord.TextChannel;
+
+// const config: typeof import("../config.json") = JSON.parse(fs.readFileSync(__dirname + "../config.js", "utf-8"));
 
 client.once("ready", async () => {
 	if (client.user == null)

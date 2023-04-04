@@ -1,9 +1,9 @@
 import "colors";
-import { LibrusError } from "./errors/libruserror";
 import makeFetchCookie from "fetch-cookie";
-import * as librusApiTypes from "./types/api-types";
-import { UsersManager, SchoolNoticesManager, CalendarsManager } from "./endpoints";
-import { LuckyNumbersManager } from "./endpoints/luckyNumbers";
+import { LibrusError } from "./errors/libruserror.js";
+import * as librusApiTypes from "./types/api-types.js";
+import { UsersManager, SchoolNoticesManager, CalendarsManager } from "./endpoints/index.js";
+import { LuckyNumbersManager } from "./endpoints/luckyNumbers.js";
 
 interface ILibrusRequestOptions {
 	fetchOptions?: RequestInit
