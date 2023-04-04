@@ -67,7 +67,7 @@ export interface APISynergiaAccounts {
 }
 
 // POST https://api.librus.pl/3.0/ChangeRegister
-// also https://api.librus.pl/3.0/ChangeRegister/<pushdevice id>
+// also PUT https://api.librus.pl/3.0/ChangeRegister/<pushdevice id>?
 // {"sendPush":"0","appVersion":"6.0.0"}
 export interface PostAPIChangeRegister extends APIv3BaseResponse {
 	ChangeRegister: INumberIdResource;
@@ -353,3 +353,4 @@ interface ILuckyNumbers {
 export interface APILuckyNumbers extends APIv3BaseResponse {
 	LuckyNumber: ILuckyNumbers;
 }
+

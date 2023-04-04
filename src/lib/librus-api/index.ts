@@ -2,8 +2,10 @@ import "colors";
 import makeFetchCookie from "fetch-cookie";
 import { LibrusError } from "./errors/libruserror.js";
 import * as librusApiTypes from "./types/api-types.js";
-import { UsersManager, SchoolNoticesManager, CalendarsManager } from "./endpoints/index.js";
 import { LuckyNumbersManager } from "./endpoints/luckyNumbers.js";
+import { SchoolNoticesManager } from "./endpoints/schoolNoticesManager.js";
+import { UsersManager } from "./endpoints/usersManager.js";
+import { CalendarsManager } from "./endpoints/calendarsManager.js";
 
 interface ILibrusRequestOptions {
 	fetchOptions?: RequestInit
@@ -19,42 +21,37 @@ interface ILibrusClientConstructor {
  * @class
  */
 export default class LibrusClient {
-	private bearerToken: string;
-	pushDevice: number;
-	private synergiaLogin: string;
-	private appUsername: string;
-	private appPassword: string;
-	private cookieFetch;
-	users: UsersManager;
-	schoolNotices: SchoolNoticesManager;
-	calendars: CalendarsManager;
-	luckyNumbers: LuckyNumbersManager;
-	debug: boolean;
-	log: (message: unknown) => void;
+	private bearerToken = "";
+	pushDevice = 0;
+	private synergiaLogin = "";
+	private appUsername = "";
+	private appPassword = "";
+	private cookieFetch = makeFetchCookie(fetch);
+	users = new UsersManager(this);
+	schoolNotices = new SchoolNoticesManager(this);
+	calendars = new CalendarsManager(this);
+	luckyNumbers = new LuckyNumbersManager(this);
+	debug = false;
 	/**
 	 * Create a new Librus API client
 	 * @constructor
 	 */
 	constructor(options?: ILibrusClientConstructor) {
-		this.bearerToken = "";
-		this.pushDevice = 0;
-		this.synergiaLogin = "";
-		this.appUsername = "";
-		this.appPassword = "";
-		this.cookieFetch = makeFetchCookie(fetch);
-		this.users = new UsersManager(this);
-		this.schoolNotices = new SchoolNoticesManager(this);
-		this.calendars = new CalendarsManager(this);
-		this.luckyNumbers = new LuckyNumbersManager(this);
-		if (options?.debug)
+		if (options?.debug) {
 			this.debug = true;
-		else
+		}
+		else {
 			this.debug = false;
-		this.log = function(message: unknown) {
-			if (this.debug) {
-				console.debug(message);
-			}
-		};
+		}
+	}
+
+	/**
+	 * Internal log function
+	 */
+	log(message: unknown) {
+		if (this.debug) {
+			console.debug(message);
+		}
 	}
 
 	/**
@@ -156,6 +153,7 @@ export default class LibrusClient {
 
 	/**
 	 * Creates a request to Librus API using provided link, method, body and returns the JSON data sent back
+	 * **NOTE:** This is dedicated for internal library use, not meant to be used my your app.
 	 * @async
 	 * @param url API endpoit URL
 	 * @param options Additional request options

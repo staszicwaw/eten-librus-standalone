@@ -4,10 +4,9 @@ import { APIUser, APIUsers, IUser } from "../types/api-types.js";
 import BaseManager from "./baseManager.js";
 
 export class UsersManager extends BaseManager {
-	cache: Map<number, IUser>;
+	cache = new Map<number, IUser>();
 	constructor(client: LibrusClient) {
 		super(client);
-		this.cache = new Map<number, IUser>();
 	}
 	async fetch(id: number, force = false): Promise<IUser> {
 		const userResponse = await this.client.customLibrusRequest(`https://api.librus.pl/3.0/Users/${id}`) as Response;
