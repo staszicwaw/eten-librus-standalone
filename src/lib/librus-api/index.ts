@@ -82,7 +82,7 @@ export default class LibrusClient {
 			headers: {
 				"Content-Type": "application/json",
 				"X-CSRF-TOKEN": csrfToken,
-				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
+				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
 			}
 		});
 		if (!loginResult.ok)
@@ -92,7 +92,7 @@ export default class LibrusClient {
 		const accountsResult = await this.cookieFetch("https://portal.librus.pl/api/v3/SynergiaAccounts", {
 			method: "GET",
 			headers: {
-				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
+				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
 			}
 		});
 		const accountsResultJson = await accountsResult.json() as librusApiTypes.APISynergiaAccounts;
@@ -122,7 +122,7 @@ export default class LibrusClient {
 			{
 				method: "GET",
 				headers: {
-					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36"
+					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
 				},
 				redirect: "manual"
 			}
@@ -163,7 +163,7 @@ export default class LibrusClient {
 		let requestOptions: RequestInit = {
 			method: "GET",
 			headers: {
-				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36",
+				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
 				gzip: "true",
 				Authorization: ((this.bearerToken !== "") ? `Bearer ${this.bearerToken}` : "")
 			},
@@ -227,7 +227,7 @@ export default class LibrusClient {
 				method: "POST",
 				body: JSON.stringify({
 					sendPush: 0,
-					appVersion: "6.1.5"
+					appVersion: "6.1.6"
 				})
 			}
 		}) as Response;
