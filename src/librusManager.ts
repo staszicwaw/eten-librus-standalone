@@ -85,24 +85,48 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 				embedDesc = embedDesc.replaceAll(role.boldRegex, "**$&**");
 			}
 		}
-		// Build message embed
-		const embed = new EmbedBuilder()
-			.setColor("#D3A5FF")
-			.setAuthor({
-				name: `${schoolNoticeAuthor.FirstName} ${schoolNoticeAuthor.LastName}`
-			})
-			.setTitle(`**__${schoolNotice.Subject}__**`)
-			.setDescription(embedDesc.substring(0, 4096)) // TODO podział na fieldy z pustymi tytułami, są do 1024 znaków :)
-			.setFooter({ text: `Dodano: ${schoolNotice.CreationDate}` });
+		// Build message embeds
+
+		// TODO podział na fieldy z pustymi tytułami, są do 1024 znaków :)
+
+		let embeds = [];
+		let countEmbeds = 0;
+		while(messageText.length > 0) {
+			let description :string = messageText.substring(0, 4096);
+			let index :number = description.length - 1;
+			while(description[index] !== '\n') {
+				index--;
+				if(index === 0)
+					break;
+			}
+			if(index === 0) {
+				index = 4096;
+			}
+			description = messageText.substring(0, index);
+			messageText = messageText.substring(index);
+			countEmbeds++;
+			const embed = new MessageEmbed()
+				.setColor("#D3A5FF")
+				.setAuthor({
+					name:  `${schoolNoticeAuthor.FirstName} ${schoolNoticeAuthor.LastName}`
+				})
+				.setTitle(`**__${schoolNotice.Subject}__**`)
+				.setDescription(description)
+				.setFooter({text: `${countEmbeds}. część ogłoszenia`})
+			embeds.push(embed);
+		}
+		embeds[embeds.length - 1].setFooter({ text: `Dodano: ${schoolNotice.CreationDate}` });
+
 		if (listener.knownNoticesMap.has(schoolNotice.Id)) {
 			// Edit existing message if exists
 			const messageId = listener.knownNoticesMap.get(schoolNotice.Id);
 			if (messageId == null)
 				throw new Error("knownNoticesMap value (message id) is null");
 			const message = await listener.channel.messages.fetch(messageId);
+			embeds[embeds.length - 1].setFooter({ text: `Dodano: ${schoolNotice.CreationDate} | Ostatnia zmiana: ${update.AddDate}` });
 			await message.edit({
 				content: contentText,
-				embeds: [embed.setFooter({ text: `Dodano: ${schoolNotice.CreationDate} | Ostatnia zmiana: ${update.AddDate}` })]
+				embeds: embeds
 			});
 			await listener.channel.send({
 				reply: { messageReference: messageId, failIfNotExists: false },
@@ -113,7 +137,7 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 			// Simply send otherwise
 			const message = await listener.channel.send({
 				content: contentText,
-				embeds: [embed]
+				embeds: embeds
 			});
 			listener.knownNoticesMap.set(schoolNotice.Id, message.id);
 			// Crosspost if in News c`hannel
