@@ -91,8 +91,8 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 
 		let embeds = [];
 		let countEmbeds = 0;
-		while(messageText.length > 0) {
-			let description :string = messageText.substring(0, 4096);
+		while(embedDesc.length > 0) {
+			let description :string = embedDesc.substring(0, 4096);
 			let index :number = description.length - 1;
 			while(description[index] !== '\n') {
 				index--;
@@ -102,10 +102,10 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 			if(index === 0) {
 				index = 4096;
 			}
-			description = messageText.substring(0, index);
-			messageText = messageText.substring(index);
+			description = embedDesc.substring(0, index);
+			embedDesc = embedDesc.substring(index);
 			countEmbeds++;
-			const embed = new MessageEmbed()
+			const embed = new EmbedBuilder()
 				.setColor("#D3A5FF")
 				.setAuthor({
 					name:  `${schoolNoticeAuthor.FirstName} ${schoolNoticeAuthor.LastName}`
