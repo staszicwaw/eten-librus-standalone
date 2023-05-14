@@ -90,6 +90,9 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 
 		// TODO podział na fieldy z pustymi tytułami, są do 1024 znaków :)
 
+		// TODO wysyłanie w kilku wiadomościach albo w threadzie
+		embedDesc = embedDesc.substring(0, 5900); // The limit is 6000, but titles, footers, etc., also factor into it
+
 		let embeds = [];
 		let countEmbeds = 0;
 		while (embedDesc.length > 0) {
