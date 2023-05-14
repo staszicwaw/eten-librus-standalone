@@ -95,7 +95,7 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 			let description: string = embedDesc.substring(0, 4096);
 			let index: number = description.length - 1;
 
-			while (description[index] !== '\n') {
+			while (description[index] !== "\n") {
 				index--;
 				if (index === 0) {
 					break;
@@ -114,7 +114,7 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 				})
 				.setTitle(`**__${schoolNotice.Subject}__**`)
 				.setDescription(description)
-				.setFooter({text: `${countEmbeds}. część ogłoszenia`})
+				.setFooter({ text: `${countEmbeds}. część ogłoszenia` });
 			embeds.push(embed);
 		}
 		embeds[embeds.length - 1].setFooter({ text: `Dodano: ${schoolNotice.CreationDate}` });
