@@ -102,7 +102,7 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 				}
 			}
 
-			index = index !== 0 ? index : 4096;
+			index = (index !== 0 && description.length > 4096) ? index : 4096;
 
 			description = embedDesc.substring(0, index);
 			embedDesc = embedDesc.substring(index);
