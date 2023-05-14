@@ -106,6 +106,10 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 
 			description = embedDesc.substring(0, index);
 			embedDesc = embedDesc.substring(index);
+			if (!description.replace(/\s/g, "").length) {
+				// description consists only of whitespace characters
+				continue;
+			}
 			countEmbeds++;
 			const embed = new EmbedBuilder()
 				.setColor("#D3A5FF")
