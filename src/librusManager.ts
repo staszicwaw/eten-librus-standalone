@@ -20,6 +20,7 @@ interface IChannels {
 
 const noticeListenerChannels: IChannels[] = [];
 let librusClient: LibrusClient;
+const maxEmbedLength = 4096;
 
 function isPlanChangeNotice(title: string): boolean {
 	const titleLower = title.toLowerCase();
@@ -92,7 +93,7 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 		let embeds = [];
 		let countEmbeds = 0;
 		while (embedDesc.length > 0) {
-			let description: string = embedDesc.substring(0, 4096);
+			let description: string = embedDesc.substring(0, maxEmbedLength);
 			let index: number = description.length - 1;
 
 			while (description[index] !== "\n") {
@@ -102,7 +103,7 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 				}
 			}
 
-			index = (index !== 0 && description.length > 4096) ? index : 4096;
+			index = (index !== 0 && description.length > maxEmbedLength) ? index : maxEmbedLength;
 
 			description = embedDesc.substring(0, index);
 			embedDesc = embedDesc.substring(index);
