@@ -20,6 +20,7 @@ interface IChannels {
 
 const noticeListenerChannels: IChannels[] = [];
 let librusClient: LibrusClient;
+const maxEmbedLength = 4096;
 
 function isPlanChangeNotice(title: string): boolean {
 	const titleLower = title.toLowerCase();
@@ -76,8 +77,9 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 		if (isPlanChangeNotice(schoolNotice.Subject) && listener.rolesRegexArr.length > 0) {
 			// Prepend role mentions
 			for (const role of listener.rolesRegexArr) {
-				if (role.roleRegex.test(embedDesc))
+				if (role.roleRegex.test(embedDesc)) {
 					contentText += `<@&${role.roleId}> `;
+				}
 				embedDesc = embedDesc.replaceAll(role.roleRegex, `<@&${role.roleId}> $&`);
 			}
 			// Bold the text
@@ -85,24 +87,56 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 				embedDesc = embedDesc.replaceAll(role.boldRegex, "**$&**");
 			}
 		}
-		// Build message embed
-		const embed = new EmbedBuilder()
-			.setColor("#D3A5FF")
-			.setAuthor({
-				name: `${schoolNoticeAuthor.FirstName} ${schoolNoticeAuthor.LastName}`
-			})
-			.setTitle(`**__${schoolNotice.Subject}__**`)
-			.setDescription(embedDesc.substring(0, 4096)) // TODO podział na fieldy z pustymi tytułami, są do 1024 znaków :)
-			.setFooter({ text: `Dodano: ${schoolNotice.CreationDate}` });
+
+		// TODO podział na fieldy z pustymi tytułami, są do 1024 znaków :)
+
+		// TODO wysyłanie w kilku wiadomościach albo w threadzie
+		embedDesc = embedDesc.substring(0, 5900); // The limit is 6000, but titles, footers, etc., also factor into it
+
+		let embeds = [];
+		let countEmbeds = 0;
+		while (embedDesc.length > 0) {
+			let description: string = embedDesc.substring(0, maxEmbedLength);
+			let index: number = description.length - 1;
+
+			while (description[index] !== "\n") {
+				index--;
+				if (index === 0) {
+					break;
+				}
+			}
+
+			index = (index !== 0 && description.length > maxEmbedLength) ? index : maxEmbedLength;
+
+			description = embedDesc.substring(0, index);
+			embedDesc = embedDesc.substring(index);
+			if (!description.replace(/\s/g, "").length) {
+				// description consists only of whitespace characters
+				continue;
+			}
+			countEmbeds++;
+			const embed = new EmbedBuilder()
+				.setColor("#D3A5FF")
+				.setAuthor({
+					name: `${schoolNoticeAuthor.FirstName} ${schoolNoticeAuthor.LastName}`
+				})
+				.setTitle(`**__${schoolNotice.Subject}__**`)
+				.setDescription(description)
+				.setFooter({ text: `${countEmbeds}. część ogłoszenia` });
+			embeds.push(embed);
+		}
+		embeds[embeds.length - 1].setFooter({ text: `Dodano: ${schoolNotice.CreationDate}` });
+
 		if (listener.knownNoticesMap.has(schoolNotice.Id)) {
 			// Edit existing message if exists
 			const messageId = listener.knownNoticesMap.get(schoolNotice.Id);
 			if (messageId == null)
 				throw new Error("knownNoticesMap value (message id) is null");
 			const message = await listener.channel.messages.fetch(messageId);
+			embeds[embeds.length - 1].setFooter({ text: `Dodano: ${schoolNotice.CreationDate} | Ostatnia zmiana: ${update.AddDate}` });
 			await message.edit({
 				content: contentText,
-				embeds: [embed.setFooter({ text: `Dodano: ${schoolNotice.CreationDate} | Ostatnia zmiana: ${update.AddDate}` })]
+				embeds: embeds
 			});
 			await listener.channel.send({
 				reply: { messageReference: messageId, failIfNotExists: false },
@@ -113,10 +147,10 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 			// Simply send otherwise
 			const message = await listener.channel.send({
 				content: contentText,
-				embeds: [embed]
+				embeds: embeds
 			});
 			listener.knownNoticesMap.set(schoolNotice.Id, message.id);
-			// Crosspost if in News c`hannel
+			// Crosspost if in News channel
 			if (listener.channel.type == ChannelType.GuildAnnouncement) {
 				message.crosspost()
 					.catch(error => {
@@ -126,7 +160,7 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 			}
 		}
 	}
-	console.log(`${schoolNotice.Id}  --- Sent!`.green);
+	console.log(`${schoolNotice.Id} --- Sent!`.green);
 }
 
 async function handleTeacherFreeDay(update: LibrusApiTypes.IChange) {
