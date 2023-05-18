@@ -1,20 +1,19 @@
 {
   "name": "eten-librus-standalone",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "dependencies": {
-    "colors": "^1.4.0",
-    "discord.js": "^14.9.0",
-    "fetch-cookie": "^2.1.0",
-    "node-cron": "^3.0.2"
+    "colors": "1.4.0",
+    "discord.js": "14.11.0",
+    "fetch-cookie": "2.1.0",
+    "node-cron": "3.0.2"
   },
   "devDependencies": {
-    "@tsconfig/node18": "^1.0.1",
-    "@types/node": "^18.15.11",
-    "@types/node-cron": "^3.0.7",
-    "@typescript-eslint/eslint-plugin": "^5.57.1",
-    "@typescript-eslint/parser": "^5.57.1",
-    "eslint": "^8.37.0",
-    "typescript": "^5.0.3"
+    "@types/node": "20.2.0",
+    "@types/node-cron": "3.0.7",
+    "@typescript-eslint/eslint-plugin": "5.59.6",
+    "@typescript-eslint/parser": "5.59.6",
+    "eslint": "8.40.0",
+    "typescript": "5.0.4"
   }
 }

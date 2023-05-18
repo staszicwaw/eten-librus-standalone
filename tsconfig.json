@@ -3,8 +3,16 @@
 	"compilerOptions": {
 		"module": "NodeNext",
 		"moduleResolution": "nodenext",
+		"target": "es2022",
 		"outDir": "dist",
-		"resolveJsonModule": true
+		"lib": [
+			"es2022"
+		],
+		"resolveJsonModule": true,
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
 	},
 	"include": [
 		"src/**/*"
