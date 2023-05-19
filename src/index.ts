@@ -1,4 +1,4 @@
-import Discord, { ActivityType, GatewayIntentBits } from "discord.js";
+import Discord, { ActivityType, ChannelType, GatewayIntentBits } from "discord.js";
 import initLibrusManager from "./librusManager.js";
 import config from "./config.json" assert { type: "json" };
 
@@ -25,5 +25,12 @@ client.once("ready", async () => {
 	console.log("Ready!");
 	initLibrusManager();
 });
-
+client.on("messageCreate",message=>{
+	if(message.author.id===client.user?.id)
+		if(message.channel.type===ChannelType.GuildAnnouncement)
+			message.crosspost()
+			.catch(error=>{
+				console.error(error);
+			})
+})
 client.login(config.discordToken);
