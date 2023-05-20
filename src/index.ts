@@ -25,12 +25,12 @@ client.once("ready", async () => {
 	console.log("Ready!");
 	initLibrusManager();
 });
-client.on("messageCreate",message=>{
-	if(message.author.id===client.user?.id)
-		if(message.channel.type===ChannelType.GuildAnnouncement)
+client.on("messageCreate", message => {
+	if (message.author.id === client.user?.id)
+		if (message.channel.type === ChannelType.GuildAnnouncement)
 			message.crosspost()
-			.catch(error=>{
-				console.error(error);
-			})
-})
+				.catch(error => {
+					console.error(error);
+				});
+});
 client.login(config.discordToken);
