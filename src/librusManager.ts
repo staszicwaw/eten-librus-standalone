@@ -147,14 +147,6 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 				embeds: embeds
 			});
 			listener.knownNoticesMap.set(schoolNotice.Id, message.id);
-			// Crosspost if in News channel
-			if (listener.channel.type == ChannelType.GuildAnnouncement) {
-				message.crosspost()
-					.catch(error => {
-						console.error("Error while crossposting:", error);
-						debugChannel.send(`Error while crossposting: ${error}`);
-					});
-			}
 		}
 	}
 	console.log(`${schoolNotice.Id} --- Sent!`.green);
@@ -217,14 +209,7 @@ async function handleTeacherFreeDay(update: LibrusApiTypes.IChange) {
 		.setFooter({ text: `Dodano: ${teacherFreeDay.AddDate}` });
 	// Send
 	for (const listener of noticeListenerChannels) {
-		const message = await listener.channel.send({ content: `**${messageContent}**`, embeds: [embed] });
-		if (listener.channel.type == ChannelType.GuildAnnouncement) {
-			message.crosspost()
-				.catch(error => {
-					console.error("Error while crossposting:", error);
-					debugChannel.send(`Error while crossposting: ${error}`);
-				});
-		}
+		await listener.channel.send({ content: `**${messageContent}**`, embeds: [embed] });
 	}
 	console.log(`${update.Resource.Url}  --- Sent!`.green);
 }
