@@ -2,6 +2,7 @@
 data/
 src/config.json
 .vscode
+webhook-link
 
 # effects
 !data/effects.json
