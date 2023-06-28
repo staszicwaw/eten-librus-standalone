@@ -356,5 +356,5 @@ export default async function initLibrusManager() {
 	librusClient.pushDevice = config.pushDevice;
 	await registerTrackedChannels();
 	setTimeout(fetchNewSchoolNotices, 2000);
-	cron.schedule("30 6 * * 1-5", luckyNumbersCron);
+	cron.schedule("30 6 * 1-6,9-12 1-5", luckyNumbersCron);
 }
