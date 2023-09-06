@@ -1,6 +1,6 @@
 import LibrusClient from "../index.js";
 import { LibrusError } from "../errors/libruserror.js";
-import { APICalendarsTeacherFreeDay, ITeacherFreeDay } from "../types/api-types.js";
+import { APICalendarsTeacherFreeDay } from "../types/api-types.js";
 import BaseManager from "./baseManager.js";
 
 export class CalendarsManager extends BaseManager {
@@ -16,7 +16,7 @@ class TeacherFreeDaysManager extends BaseManager {
 	constructor(client: LibrusClient) {
 		super(client);
 	}
-	async fetch(id: number): Promise<ITeacherFreeDay> {
+	async fetch(id: number) {
 		const noticeResponse = await this.client.customLibrusRequest(`https://api.librus.pl/3.0/Calendars/TeacherFreeDays/${id}`) as Response;
 		// Check if request is OK
 		if (!noticeResponse.ok) {

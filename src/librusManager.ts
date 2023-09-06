@@ -2,23 +2,23 @@ import { ChannelType, EmbedBuilder, Snowflake, TextBasedChannel } from "discord.
 import config from "./config.json" assert { type: "json" };
 import { client as discordClient, debugChannel } from "./index.js";
 import LibrusClient from "./lib/librus-api/index.js";
-import * as LibrusApiTypes from "./lib/librus-api/types/api-types.js";
+import { Change, SchoolNotice, TeacherFreeDay, User } from "./lib/librus-api/types/api-types.js";
 import cron from "node-cron";
 
-interface IRoleRegex {
+interface RoleRegex {
 	roleId: Snowflake;
 	roleRegex: RegExp;
 	boldRegex: RegExp;
 }
 
-interface IChannels {
+interface ChannelData {
 	channel: TextBasedChannel;
 	knownNoticesMap: Map<string, Snowflake>;
-	rolesRegexArr: IRoleRegex[];
+	rolesRegexArr: RoleRegex[];
 	numberRolesMap: Map<number, Snowflake>;
 }
 
-const noticeListenerChannels: IChannels[] = [];
+const noticeListenerChannels: ChannelData[] = [];
 let librusClient: LibrusClient;
 const maxEmbedLength = 4096;
 
@@ -34,7 +34,7 @@ function isPlanChangeNotice(title: string): boolean {
 }
 
 
-async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
+async function handleSchoolNotice(update: Change) {
 	// Handle blocked SchoolNotices
 	let changeType: string;
 	switch (update.Type) {
@@ -57,8 +57,8 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 		}
 	}
 	// Get notice, author
-	let schoolNotice: LibrusApiTypes.ISchoolNotice;
-	let schoolNoticeAuthor: LibrusApiTypes.IUser;
+	let schoolNotice: SchoolNotice;
+	let schoolNoticeAuthor: User;
 	try {
 		schoolNotice = await librusClient.schoolNotices.fetch(update.Resource.Id);
 		schoolNoticeAuthor = await librusClient.users.fetch(schoolNotice.AddedBy.Id);
@@ -152,7 +152,7 @@ async function handleSchoolNotice(update: LibrusApiTypes.IChange) {
 	console.log(`${schoolNotice.Id} --- Sent!`.green);
 }
 
-async function handleTeacherFreeDay(update: LibrusApiTypes.IChange) {
+async function handleTeacherFreeDay(update: Change) {
 	let messageContent = "";
 	switch (update.Type) {
 		case "Add": {
@@ -173,8 +173,8 @@ async function handleTeacherFreeDay(update: LibrusApiTypes.IChange) {
 			console.error("Unhandled update.Type! Skipping.".bgRed.white);
 		}
 	}
-	let teacherFreeDay: LibrusApiTypes.ITeacherFreeDay;
-	let teacher: LibrusApiTypes.IUser;
+	let teacherFreeDay: TeacherFreeDay;
+	let teacher: User;
 	try {
 		teacherFreeDay = await librusClient.calendars.teacherFreeDays.fetch(parseInt(update.Resource.Id));
 		console.log(teacherFreeDay);
@@ -215,8 +215,7 @@ async function handleTeacherFreeDay(update: LibrusApiTypes.IChange) {
 }
 
 async function fetchNewSchoolNotices(): Promise<void> {
-	// TODO: Timer handling
-	const failDelayTimeMs = 2 * 60 * 1000;
+	const failDelayTimeMs = 5 * 60 * 1000;
 	// Massive try-catch: If any of code fails within this block we WANT to fail,
 	// otherwise undefined behavior might occur that is too hard to handle because
 	// of the unknown that is the trash librus app API. Too bad!
@@ -270,7 +269,7 @@ async function registerTrackedChannels(): Promise<void> {
 			await debugChannel.send(`${channel.id} is not a valid guild text/news channel!`);
 			continue;
 		}
-		const rolesRegexArr: IRoleRegex[] = [];
+		const rolesRegexArr: RoleRegex[] = [];
 		const guildRoles = await (await discordClient.guilds.fetch(channelConfig.guildId)).roles.fetch();
 		// Fill roleRegexArr with appropriate role IDs and their respective regexes
 		if (channelConfig.tagRoles) {
@@ -350,7 +349,7 @@ async function luckyNumbersCron() {
 }
 
 export default async function initLibrusManager() {
-	librusClient = new LibrusClient({ debug: true });
+	librusClient = new LibrusClient(true);
 	await librusClient.login(config.librusLogin, config.librusPass);
 	// librusClient.pushDevice = await librusClient.newPushDevice();
 	librusClient.pushDevice = config.pushDevice;

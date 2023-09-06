@@ -1,29 +1,23 @@
-// interface IResource {
-// 	Id?: string;
-// 	Type?: string;
-// 	Url: string;
-// }
-
-interface IResourcesResource {
+interface ResourcesResource {
 	Url: string;
 }
-interface IChangeResource {
+interface ChangeResource {
 	Id: string;
 	Type: string;
 	Url: string;
 }
-interface INumberIdResource {
+interface NumberIdResource {
 	Id: number;
 	Url: string;
 }
-interface IStringIdResource {
+interface StringIdResource {
 	Id: string;
-	Url: string;
+	Url: string;1
 }
 
-export interface IChange {
+export interface Change {
 	Id: string;
-	Resource: IChangeResource; // Id, Type, Url
+	Resource: ChangeResource; // Id, Type, Url
 	Type: string;
 	AddDate: string;
 	extraData: string | null;
@@ -31,7 +25,7 @@ export interface IChange {
 
 export interface APIv3BaseResponse {
 	Resources?: {
-		[path: string]: IResourcesResource; // Url
+		[path: string]: ResourcesResource; // Url
 	}
 	Url?: string;
 	// If these exist, bad news.
@@ -43,7 +37,7 @@ export interface APIv3BaseResponse {
 
 // https://api.librus.pl/3.0/PushChanges?pushDevice=<PUSH DEVICE>
 export interface APIPushChanges extends APIv3BaseResponse {
-	Changes: IChange[];
+	Changes: Change[];
 	ChangesTimestamp: number;
 }
 
@@ -70,7 +64,7 @@ export interface APISynergiaAccounts {
 // also PUT https://api.librus.pl/3.0/ChangeRegister/<pushdevice id>?
 // {"sendPush":"0","appVersion":"6.0.0"}
 export interface PostAPIChangeRegister extends APIv3BaseResponse {
-	ChangeRegister: INumberIdResource;
+	ChangeRegister: NumberIdResource;
 }
 
 // https://api.librus.pl/3.0/Me
@@ -94,7 +88,7 @@ export interface APIMe extends APIv3BaseResponse {
 			FirstName: string;
 			LastName: string;
 		}
-		Class: INumberIdResource; // Id, Url
+		Class: NumberIdResource; // Id, Url
 	}
 }
 
@@ -105,10 +99,10 @@ export interface APISystemData extends APIv3BaseResponse {
 	Status?: string;
 }
 
-interface ICategory {
+interface Category {
 	Id: number;
-	Teacher: INumberIdResource; // Id, Url
-	Color: IStringIdResource; // Id, Url
+	Teacher: NumberIdResource; // Id, Url
+	Color: StringIdResource; // Id, Url
 	Name: string;
 	AdultsExtramural: boolean;
 	AdultsDaily: boolean;
@@ -123,82 +117,82 @@ interface ICategory {
 
 // https://api.librus.pl/3.0/Grades/Categories/<Comma separated GradeCategory IDs?>
 export interface APIGradesCategorie extends APIv3BaseResponse {
-	Categorie: ICategory;
+	Categorie: Category;
 }
 export interface APIGradesCategories extends APIv3BaseResponse {
-	Categories: ICategory[];
+	Categories: Category[];
 }
 
-export interface ISchoolNotice {
+export interface SchoolNotice {
 	Id: string;
 	StartDate: string;
 	EndDate: string;
 	Subject: string;
 	Content: string;
-	AddedBy: INumberIdResource // Id, Url
+	AddedBy: NumberIdResource // Id, Url
 	CreationDate: string;
 	WasRead: boolean;
 }
 
 // https://api.librus.pl/3.0/SchoolNotices/
 export interface APISchoolNotices extends APIv3BaseResponse {
-	SchoolNotices: ISchoolNotice[];
+	SchoolNotices: SchoolNotice[];
 }
 
 // https://api.librus.pl/3.0/SchoolNotices/<SchoolNotice ID>
 export interface APISchoolNotice extends APIv3BaseResponse {
-	SchoolNotice: ISchoolNotice;
+	SchoolNotice: SchoolNotice;
 }
 
-interface IAttendance {
+interface Attendance {
 	Id: number;
-	Lesson: INumberIdResource; // Id, Url
-	Student: INumberIdResource; // Id, Url
+	Lesson: NumberIdResource; // Id, Url
+	Student: NumberIdResource; // Id, Url
 	Date: string;
 	AddDate: string;
 	LessonNo: number;
 	Semester: number;
-	Type: IStringIdResource; // Id, Url
-	AddedBy: INumberIdResource; // Id, Url
+	Type: StringIdResource; // Id, Url
+	AddedBy: NumberIdResource; // Id, Url
 }
 
 // https://api.librus.pl/3.0/Attendances/<Comma separated Attendance IDs>
 export interface APIAttendance extends APIv3BaseResponse {
-	Attendance: IAttendance;
+	Attendance: Attendance;
 }
 export interface APIAttendances extends APIv3BaseResponse {
-	Attendances: IAttendance[];
+	Attendances: Attendance[];
 }
 
-interface IHomework {
+interface Homework {
 	Id: number;
 	Content: string;
 	Date: string;
-	Category: INumberIdResource; // Id, Url
+	Category: NumberIdResource; // Id, Url
 	LessonNo: string;
 	TimeFrom: string;
 	TimeTo: string;
 	AddDate: string;
-	CreatedBy: INumberIdResource; // Id, Url
-	Class: INumberIdResource; // Id, Url
-	Subject: INumberIdResource; // Id, Url
+	CreatedBy: NumberIdResource; // Id, Url
+	Class: NumberIdResource; // Id, Url
+	Subject: NumberIdResource; // Id, Url
 }
 
 // https://api.librus.pl/3.0/Homeworks/<Comma separated Homework IDs>
 export interface APIHomework extends APIv3BaseResponse {
-	Homework: IHomework;
+	Homework: Homework;
 }
 export interface APIHomeworks extends APIv3BaseResponse {
-	Homeworks: IHomework[];
+	Homeworks: Homework[];
 }
 
-interface IGrade {
+interface Grade {
 	Id: number;
-	Lesson: INumberIdResource; // Id, Url
-	Subject: INumberIdResource; // Id, Url
-	Student: INumberIdResource; // Id, Url
-	Category: INumberIdResource; // Id, Url
-	AddedBy: INumberIdResource; // Id, Url
+	Lesson: NumberIdResource; // Id, Url
+	Subject: NumberIdResource; // Id, Url
+	Student: NumberIdResource; // Id, Url
+	Category: NumberIdResource; // Id, Url
+	AddedBy: NumberIdResource; // Id, Url
 	Grade: string;
 	Date: string;
 	AddDate: string;
@@ -208,54 +202,54 @@ interface IGrade {
 	IsSemesterProposition: boolean;
 	IsFinal: boolean;
 	IsFinalProposition: boolean;
-	Comments: IStringIdResource[]; // Id, Url
+	Comments: StringIdResource[]; // Id, Url
 }
 
-interface IGradeComment {
+interface GradeComment {
 	Id: number;
-	AddedBy: IStringIdResource; // Id, Url
-	Grade: IStringIdResource; // Id, Url
+	AddedBy: StringIdResource; // Id, Url
+	Grade: StringIdResource; // Id, Url
 	Text: string;
 }
 
 // https://api.librus.pl/3.0/Grades/<Comma separated Grade IDs>
 export interface APIGrade extends APIv3BaseResponse {
-	Grade: IGrade;
+	Grade: Grade;
 }
 export interface APIGrades extends APIv3BaseResponse {
-	Grades: IGrade[];
+	Grades: Grade[];
 }
 
 // https://api.librus.pl/3.0/Grades/Comments/<Comma separated Grade IDs>
 export interface APIGradesComment extends APIv3BaseResponse {
-	Comment: IGradeComment;
+	Comment: GradeComment;
 }
 export interface APIGradesComments extends APIv3BaseResponse {
-	Comments: IGradeComment[];
+	Comments: GradeComment[];
 }
 
-interface ILesson {
+interface Lesson {
 	Id: number;
-	Teacher: INumberIdResource; // Id, Url
-	Subject: INumberIdResource; // Id, Url
-	Class: IStringIdResource; // Id, Url
+	Teacher: NumberIdResource; // Id, Url
+	Subject: NumberIdResource; // Id, Url
+	Class: StringIdResource; // Id, Url
 }
 
 // https://api.librus.pl/3.0/Lessons/<Comma separated Lesson IDs>
 export interface APILesson extends APIv3BaseResponse {
-	Lesson: ILesson;
+	Lesson: Lesson;
 }
 export interface APILessons extends APIv3BaseResponse {
-	Lessons: ILesson[];
+	Lessons: Lesson[];
 }
 
-export interface ITeacherFreeDay {
+export interface TeacherFreeDay {
 	Id: number;
 	Name: string;
 	DateFrom: string;
 	DateTo: string;
 	AddDate: string;
-	Teacher: INumberIdResource // Id, Url
+	Teacher: NumberIdResource // Id, Url
 	TimeFrom: string;
 	TimeTo: string;
 }
@@ -263,35 +257,35 @@ export interface ITeacherFreeDay {
 // https://api.librus.pl/3.0/Calendars/TeacherFreeDays/<Comma separated IDs>
 // https://api.librus.pl/2.0/TeacherFreeDays works too, but is not recommended since it doesnt give TimeFrom/TimeTo
 export interface APICalendarsTeacherFreeDay extends APIv3BaseResponse {
-	TeacherFreeDay: ITeacherFreeDay;
+	TeacherFreeDay: TeacherFreeDay;
 }
 export interface APICalendarsTeacherFreeDays extends APIv3BaseResponse {
-	TeacherFreeDays: ITeacherFreeDay[];
+	TeacherFreeDays: TeacherFreeDay[];
 }
 
-interface ISubstitution {
+interface Substitution {
 	Id: number;
 	IsCancelled: boolean;
 	IsShifted: boolean;
 	OrgDate: string;
 	OrgLessonNo: string;
-	OrgSubject: INumberIdResource; // Id, Url
-	OrgTeacher: INumberIdResource; // Id, Url
+	OrgSubject: NumberIdResource; // Id, Url
+	OrgTeacher: NumberIdResource; // Id, Url
 	Date?: string;
 	LessonNo?: string;
-	Subject?: INumberIdResource; // Id, Url
-	Teacher?: INumberIdResource; // Id, Url
+	Subject?: NumberIdResource; // Id, Url
+	Teacher?: NumberIdResource; // Id, Url
 }
 
 // https://api.librus.pl/3.0/Calendars/Substitutions/<Comma separated IDs>
 export interface APICalendarsSubstitution extends APIv3BaseResponse {
-	Substitution: ISubstitution;
+	Substitution: Substitution;
 }
 export interface APICalendarsSubstitutions extends APIv3BaseResponse {
-	Substitutions: ISubstitution[];
+	Substitutions: Substitution[];
 }
 
-export interface IUser {
+export interface User {
     Id: number;
     AccountId: string;
     FirstName: string;
@@ -302,13 +296,13 @@ export interface IUser {
 
 // https://api.librus.pl/3.0/Users/<Comma separated IDs>
 export interface APIUser extends APIv3BaseResponse {
-	User: IUser;
+	User: User;
 }
 export interface APIUsers extends APIv3BaseResponse {
-	Users: IUser[];
+	Users: User[];
 }
 
-interface ISubject {
+interface Subject {
 	Id: number;
 	Name: string;
 	No: number;
@@ -319,38 +313,37 @@ interface ISubject {
 
 // https://api.librus.pl/2.0/Subjects/<Comma separated IDs>
 export interface APISubject extends APIv3BaseResponse {
-	Subject: ISubject;
+	Subject: Subject;
 }
 export interface APISubjects extends APIv3BaseResponse {
-	Subjects: ISubject[];
+	Subjects: Subject[];
 }
 
-interface IParentTeacherConference {
-	Class: INumberIdResource;
+interface ParentTeacherConference {
+	Class: NumberIdResource;
 	Date: string;
 	Name: string;
-	Teacher: INumberIdResource;
+	Teacher: NumberIdResource;
 	Topic: string;
-	Room: null; // Probably INumberIdResource otherwise?
+	Room: null; // Probably NumberIdResource if defined?
 	Time: string;
 }
 
 // https://api.librus.pl/3.0/ParentTeacherConferences/<ID>
 export interface APIParentTeacherConference extends APIv3BaseResponse {
-	ParentTeacherConference: IParentTeacherConference;
+	ParentTeacherConference: ParentTeacherConference;
 }
 export interface APIParentTeacherConferences extends APIv3BaseResponse {
-	ParentTeacherConferences: IParentTeacherConference[];
+	ParentTeacherConferences: ParentTeacherConference[];
 }
 
-// TODO: Implement once endpoint becomes available
-interface ILuckyNumbers {
+interface LuckyNumbers {
 	LuckyNumber: number;
-	LuckyNumberDay: string; // Date, YYYY-MM-DD
+	LuckyNumberDay: string; // Date, format is YYYY-MM-DD
 }
 
 // https://api.librus.pl/3.0/LuckyNumbers/
 export interface APILuckyNumbers extends APIv3BaseResponse {
-	LuckyNumber: ILuckyNumbers;
+	LuckyNumber: LuckyNumbers;
 }
 

@@ -1,14 +1,16 @@
 import LibrusClient from "../index.js";
 import { LibrusError } from "../errors/libruserror.js";
-import { APIUser, APIUsers, IUser } from "../types/api-types.js";
+import { APIUser, APIUsers, User } from "../types/api-types.js";
 import BaseManager from "./baseManager.js";
 
 export class UsersManager extends BaseManager {
-	cache = new Map<number, IUser>();
+	cache = new Map<number, User>();
+
 	constructor(client: LibrusClient) {
 		super(client);
 	}
-	async fetch(id: number, force = false): Promise<IUser> {
+
+	async fetch(id: number, force = false) {
 		const userResponse = await this.client.customLibrusRequest(`https://api.librus.pl/3.0/Users/${id}`) as Response;
 		if (!force && this.cache.has(id)) {
 			const cached = this.cache.get(id);
@@ -45,13 +47,14 @@ export class UsersManager extends BaseManager {
 			throw new LibrusError("Returned user ID mismatches the one passed - THIS SHOULDN'T BE POSSIBLE", userResponse.status, user);
 		return user;
 	}
-	async fetchMany(ids: number[]): Promise<IUser[]> {
+
+	async fetchMany(ids: number[]) {
 		const idCheckArr: number[] = [];
 		// Get the ones we already cached (Or not, if force is set to true)
 		for (const id of ids) {
 			idCheckArr.push(id);
 		}
-		const returnArr: IUser[] = [];
+		const returnArr: User[] = [];
 		// Request, splitting up into separate requests if they are too large
 		while (idCheckArr.length > 0) {
 			const joinedIds = idCheckArr.splice(0, 29).join(",");

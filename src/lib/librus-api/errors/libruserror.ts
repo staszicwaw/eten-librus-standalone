@@ -1,5 +1,5 @@
 /**
- * Error type for throwing errors regarding Librus' bullshit
+ * Error type describing Librus errors that can't be handled by the library/are unknown
  * @class
  * @extends Error
  * @param msg Message

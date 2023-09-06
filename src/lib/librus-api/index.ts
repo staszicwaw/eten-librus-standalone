@@ -1,19 +1,17 @@
 import "colors";
 import makeFetchCookie from "fetch-cookie";
 import { LibrusError } from "./errors/libruserror.js";
-import * as librusApiTypes from "./types/api-types.js";
+import { APIPushChanges, APISynergiaAccounts, PostAPIChangeRegister } from "./types/api-types.js";
 import { LuckyNumbersManager } from "./endpoints/luckyNumbers.js";
 import { SchoolNoticesManager } from "./endpoints/schoolNoticesManager.js";
 import { UsersManager } from "./endpoints/usersManager.js";
 import { CalendarsManager } from "./endpoints/calendarsManager.js";
 
-interface ILibrusRequestOptions {
+interface LibrusRequestOptions {
 	fetchOptions?: RequestInit
 }
 
-interface ILibrusClientConstructor {
-	debug?: boolean
-}
+const GLOBAL_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0";
 
 /**
  * Class for easy interaction with the mobile Librus web API
@@ -22,27 +20,28 @@ interface ILibrusClientConstructor {
  */
 export default class LibrusClient {
 	private bearerToken = "";
-	pushDevice = 0;
+	/**
+	 * Set if you have an existing pushDevice ID you want to use.
+	 *
+	 * Otherwise, call `newPushDevice()` after login and let the library handle this for you.
+	 */
+	public pushDevice = 0;
 	private synergiaLogin = "";
 	private appUsername = "";
 	private appPassword = "";
 	private cookieFetch = makeFetchCookie(fetch);
-	users = new UsersManager(this);
-	schoolNotices = new SchoolNoticesManager(this);
-	calendars = new CalendarsManager(this);
-	luckyNumbers = new LuckyNumbersManager(this);
-	debug = false;
+	public readonly users = new UsersManager(this);
+	public readonly schoolNotices = new SchoolNoticesManager(this);
+	public readonly calendars = new CalendarsManager(this);
+	public readonly luckyNumbers = new LuckyNumbersManager(this);
+	public readonly debug: boolean = false;
 	/**
-	 * Create a new Librus API client
+	 * Create a new Librus API client.
+	 * @param debugLogging Print additional debug information to the console
 	 * @constructor
 	 */
-	constructor(options?: ILibrusClientConstructor) {
-		if (options?.debug) {
-			this.debug = true;
-		}
-		else {
-			this.debug = false;
-		}
+	constructor(debugLogging = false) {
+		this.debug = debugLogging;
 	}
 
 	/**
@@ -55,15 +54,17 @@ export default class LibrusClient {
 	}
 
 	/**
-	 * Login to Librus using your mobile app credentials. Mandatory to run before using anything else.
+	 * Login to Librus using your mobile app credentials.
 	 * @async
 	 * @param username Your Librus app username (This is NOT a Synergia login)
 	 * @param password Your Librus app password
+	 * @throws {Error} Invalid username/password
+	 * @throws {LibrusError}
 	 */
-	async login(username: string, password: string): Promise<void> {
+	async login(username: string, password: string) {
 		if (username.length < 2 || password.length < 2)
 			throw new Error("Invalid username or password");
-		// Get csrf-token from <meta> tag for following requests
+		// Get csrf-token from <meta> tag for future requests
 		const result = await this.cookieFetch("https://portal.librus.pl/");
 		const resultText = await result.text();
 		const csrfTokenRegexResult = /<meta name="csrf-token" content="(.*)">/g.exec(resultText);
@@ -82,7 +83,7 @@ export default class LibrusClient {
 			headers: {
 				"Content-Type": "application/json",
 				"X-CSRF-TOKEN": csrfToken,
-				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+				"User-Agent": GLOBAL_UA
 			}
 		});
 		if (!loginResult.ok)
@@ -92,17 +93,17 @@ export default class LibrusClient {
 		const accountsResult = await this.cookieFetch("https://portal.librus.pl/api/v3/SynergiaAccounts", {
 			method: "GET",
 			headers: {
-				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+				"User-Agent": GLOBAL_UA
 			}
 		});
-		const accountsResultJson = await accountsResult.json() as librusApiTypes.APISynergiaAccounts;
+		const accountsResultJson = await accountsResult.json() as APISynergiaAccounts;
 		if (!accountsResult.ok)
 			throw new LibrusError(`https://portal.librus.pl/api/v3/SynergiaAccounts ${loginResult.statusText}`, accountsResult.status, accountsResultJson);
 		// TODO: Fix the existence checking here
-		if (accountsResultJson.accounts[0]?.accessToken == null)
+		if (accountsResultJson.accounts?.[0]?.accessToken == null)
 			throw new LibrusError("SynergiaAccounts endpoint returned no accessToken for account", accountsResult.status, accountsResultJson);
 		this.bearerToken = accountsResultJson.accounts[0].accessToken;
-		if (accountsResultJson.accounts[0]?.login == null)
+		if (accountsResultJson.accounts?.[0]?.login == null)
 			throw new LibrusError("SynergiaAccounts endpoint returned no login for account", accountsResult.status, accountsResultJson);
 		this.synergiaLogin = accountsResultJson.accounts[0].login;
 		this.appUsername = username;
@@ -115,14 +116,15 @@ export default class LibrusClient {
 	 * Uses existing cached cookies instead of credentials to try and get bearer token.
 	 * Use only if you're using cookies through constructor or session is expired and you don't want to execute login() function.
 	 * @async
+	 * @throws {LibrusError}
 	 */
-	async refreshToken(): Promise<void> {
+	async refreshToken() {
 		// Get the newer accessToken
 		const response = await this.cookieFetch(`https://portal.librus.pl/api/v3/SynergiaAccounts/fresh/${this.synergiaLogin}`,
 			{
 				method: "GET",
 				headers: {
-					"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
+					"User-Agent": GLOBAL_UA
 				},
 				redirect: "manual"
 			}
@@ -152,19 +154,20 @@ export default class LibrusClient {
 	}
 
 	/**
-	 * Creates a request to Librus API using provided link, method, body and returns the JSON data sent back
-	 * **NOTE:** This is dedicated for internal library use, not meant to be used my your app.
+	 * Creates a request to Librus API using provided link, method, body and returns the JSON data sent back.
+	 * This is intended for internal library use, not meant to be used my your app.
 	 * @async
 	 * @param url API endpoit URL
 	 * @param options Additional request options
+	 * @throws {LibrusError}
 	 */
-	async customLibrusRequest(url: string, options?: ILibrusRequestOptions) {
+	async customLibrusRequest(url: string, options?: LibrusRequestOptions) {
 		// Merge default request options with user request options
 		let requestOptions: RequestInit = {
 			method: "GET",
 			headers: {
-				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
-				gzip: "true",
+				"User-Agent": GLOBAL_UA,
+				gzip: "true", // TODO: Is this necessary?
 				Authorization: ((this.bearerToken !== "") ? `Bearer ${this.bearerToken}` : "")
 			},
 			redirect: "manual"
@@ -219,19 +222,20 @@ export default class LibrusClient {
 	/**
 	 * Requests (and automatically saves internally for future use) a new pushDevice ID from librus
 	 * @async
-	 * @returns Optionally return the new pushDevice ID
+	 * @returns Newly acquired pushDevice ID
+	 * @throws {LibrusError}
 	 */
-	async newPushDevice(): Promise<number> {
+	async newPushDevice() {
 		const response = await this.customLibrusRequest("https://api.librus.pl/3.0/ChangeRegister", {
 			fetchOptions: {
 				method: "POST",
 				body: JSON.stringify({
 					sendPush: 0,
-					appVersion: "6.1.6"
+					appVersion: "7.0.0"
 				})
 			}
 		}) as Response;
-		const jsonResponse = await response.json() as librusApiTypes.PostAPIChangeRegister;
+		const jsonResponse = await response.json() as PostAPIChangeRegister;
 		if (jsonResponse.ChangeRegister?.Id == null)
 			throw new LibrusError("POST ChangeRegister returned unexpected JSON format", response.status, jsonResponse);
 		this.pushDevice = jsonResponse.ChangeRegister.Id;
@@ -243,11 +247,12 @@ export default class LibrusClient {
 	 *
 	 * **NOTE:** To not get repeat changes you have to call the deletePushChanges() method after handling the changes yourself.
 	 * @async
-	 * @returns {JSON} Response if OK in member (of type array) "Changes" of returned object.
+	 * @returns Response if OK in member (of type array) "Changes" of returned object.
+	 * @throws {LibrusError}
 	 */
-	async getPushChanges(): Promise<librusApiTypes.APIPushChanges> {
+	async getPushChanges() {
 		const response = await this.customLibrusRequest(`https://api.librus.pl/3.0/PushChanges?pushDevice=${this.pushDevice}`) as Response;
-		const responseJson = await response.json() as librusApiTypes.APIPushChanges;
+		const responseJson = await response.json() as APIPushChanges;
 		if (!response.ok)
 			throw new LibrusError(`${response.status} ${response.statusText}`, response.status, responseJson);
 		if (responseJson?.Code === "UnableToGetPushDevice")
@@ -267,10 +272,12 @@ export default class LibrusClient {
 	}
 
 	/**
-	 * Creates one or more DELETE request(s) for all IDs in given array
+	 * Effectively marks changes as "read" so they don't show up in future `getPushChanges()` calls.
+	 * This sends a DELETE request for all IDs in given array, more than one if more than 30 IDs are passed in.
+	 * @param lastPushChanges String array of IDs to be deleted.
 	 * @async
 	 */
-	async deletePushChanges(lastPushChanges: string[]): Promise<void> {
+	async deletePushChanges(lastPushChanges: string[]) {
 		if (!lastPushChanges.length)
 			return;
 		while (lastPushChanges.length) {
