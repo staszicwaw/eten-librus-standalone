@@ -18,6 +18,6 @@ fi
 touch data/crashed
 curl -X POST `cat webhook-link` -H "Content-Type: application/json" --data-binary @- <<DATA
 {
-"content": "<@895752707032367145> It's dead, jim."
+"content": "<@895752707032367145> <@1139247192855556126> It's dead, jim."
 }
 DATA
